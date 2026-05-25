@@ -5,18 +5,29 @@ import webbrowser
 import os
 from flask import Flask, render_template, jsonify, request
 
+# Detect cloud hosting or non-Windows environment to bypass hardware hangs
+IS_CLOUD = os.environ.get("RENDER") is not None or os.name != "nt"
+
 # Try to import SpeechRecognition
 try:
-    import speech_recognition as sr
-    HAS_SPEECH_REC = True
+    if IS_CLOUD:
+        sr = None
+        HAS_SPEECH_REC = False
+    else:
+        import speech_recognition as sr
+        HAS_SPEECH_REC = True
 except ImportError:
     sr = None
     HAS_SPEECH_REC = False
 
 # Try to import pyttsx3
 try:
-    import pyttsx3
-    HAS_TTS = True
+    if IS_CLOUD:
+        pyttsx3 = None
+        HAS_TTS = False
+    else:
+        import pyttsx3
+        HAS_TTS = True
 except ImportError:
     pyttsx3 = None
     HAS_TTS = False
@@ -284,9 +295,19 @@ def clear_history():
         state["logs"] = []
     return jsonify({"status": "success"})
 
-# Start voice assistant thread at module level so it runs under WSGI servers like Gunicorn
-assistant_thread = threading.Thread(target=voice_assistant_worker, daemon=True)
-assistant_thread.start()
+# Start voice assistant thread safely on the first request (critical for Gunicorn fork model)
+thread_started = False
+thread_lock = threading.Lock()
+
+@app.before_request
+def start_assistant_thread():
+    global thread_started
+    if not thread_started:
+        with thread_lock:
+            if not thread_started:
+                assistant_thread = threading.Thread(target=voice_assistant_worker, daemon=True)
+                assistant_thread.start()
+                thread_started = True
 
 # Start Flask app
 if __name__ == "__main__":
@@ -294,3 +315,5 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     print(f"Starting Flask Web UI server on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)
+
+
