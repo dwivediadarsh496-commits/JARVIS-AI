@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS AI - Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0a12;
+            --bg-panel: rgba(15, 15, 30, 0.6);
+            --border-glow: rgba(0, 242, 254, 0.2);
+            --color-primary: #00f2fe;
+            --color-secondary: #7f00ff;
+            --color-accent: #ff007f;
+            --text-main: #e2e8f0;
+            --text-muted: #94a3b8;
+            --core-glow: rgba(0, 242, 254, 0.6);
+        }
+
+        /* Ambient Background */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at 50% 50%, #1e1b4b 0%, var(--bg-base) 70%);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Glassmorphism Panel */
+        .glass-panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Header styling */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: 24px;
+            letter-spacing: 2px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo::before {
+            content: '';
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            background-color: var(--color-primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--color-primary);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-family: 'Orbitron', sans-serif;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.9); opacity: 0.6; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.6; }
+        }
+
+        /* Layout Grid */
+        .container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: calc(100% - 60px);
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Side: Jarvis Core HUD */
+        .hud-side {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 40px;
+            position: relative;
+            min-height: 500px;
+        }
+
+        /* Jarvis Core Arc Reactor */
+        .core-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: auto;
+        }
+
+        .core-orb {
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, var(--color-primary) 50%, var(--color-secondary) 100%);
+            border-radius: 50%;
+            box-shadow: 0 0 50px var(--core-glow), inset 0 0 20px rgba(255,255,255,0.6);
+            transition: all 0.5s ease;
+            position: absolute;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        .core-orb:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 70px var(--color-primary), inset 0 0 30px rgba(255,255,255,0.8);
+        }
+
+        .core-ring-outer {
+            width: 260px;
+            height: 260px;
+            border: 2px dashed var(--color-primary);
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate-clockwise 20s linear infinite;
+            opacity: 0.4;
+        }
+
+        .core-ring-inner {
+            width: 200px;
+            height: 200px;
+            border: 1px solid var(--color-secondary);
+            border-radius: 50%;
+            position: absolute;
+            animation: rotate-counter-clockwise 10s linear infinite;
+            opacity: 0.6;
+        }
+
+        .core-status-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 20px;
+            font-weight: 700;
+            color: var(--color-primary);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            text-align: center;
+        }
+
+        /* Sound Waves Visualizer */
+        .visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 60px;
+            margin-top: 20px;
+        }
+
+        .bar {
+            width: 4px;
+            height: 8px;
+            background-color: var(--color-primary);
+            border-radius: 2px;
+            transition: height 0.1s ease, background-color 0.3s ease;
+        }
+
+        /* Animation States */
+        @keyframes rotate-clockwise {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotate-counter-clockwise {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        /* Listening State */
+        .listening .core-orb {
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, var(--color-accent) 50%, var(--color-secondary) 100%);
+            box-shadow: 0 0 60px var(--color-accent);
+            animation: core-pulse 1s infinite alternate;
+        }
+        .listening .core-ring-outer {
+            border-color: var(--color-accent);
+            animation: rotate-clockwise 5s linear infinite;
+        }
+        .listening .bar {
+            background-color: var(--color-accent);
+            animation: soundwave 1.2s ease-in-out infinite alternate;
+        }
+
+        /* Speaking State */
+        .speaking .core-orb {
+            background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, #a855f7 50%, var(--color-primary) 100%);
+            box-shadow: 0 0 60px #a855f7;
+            animation: core-pulse 1.5s infinite alternate;
+        }
+        .speaking .bar {
+            background-color: #a855f7;
+            animation: soundwave 0.8s ease-in-out infinite alternate;
+        }
+
+        /* Processing State */
+        .processing .core-orb {
+            animation: core-spin 2s linear infinite;
+        }
+        .processing .bar {
+            animation: soundwave 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes core-pulse {
+            0% { transform: scale(1.0); }
+            100% { transform: scale(1.15); }
+        }
+
+        @keyframes soundwave {
+            0% { height: 8px; }
+            100% { height: 50px; }
+        }
+
+        /* Visualizer delay generation */
+        .bar:nth-child(1) { animation-delay: 0.1s; }
+        .bar:nth-child(2) { animation-delay: 0.4s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.6s; }
+        .bar:nth-child(5) { animation-delay: 0.3s; }
+        .bar:nth-child(6) { animation-delay: 0.5s; }
+        .bar:nth-child(7) { animation-delay: 0.2s; }
+        .bar:nth-child(8) { animation-delay: 0.4s; }
+
+        /* Left side control switches */
+        .control-panel {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 12px 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:hover {
+            background: var(--color-primary);
+            color: #000;
+            box-shadow: 0 0 15px var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .btn-active {
+            background: rgba(0, 242, 254, 0.2);
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* Right Side: Chat & Terminal Console */
+        .right-side {
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            padding: 16px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tab-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Hide tabs by default */
+        .tab-pane {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .tab-pane.active {
+            display: flex;
+        }
+
+        /* Chat bubbles */
+        .chat-bubble {
+            max-width: 80%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            font-size: 15px;
+            line-height: 1.5;
+            animation: fade-in 0.3s ease-out;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--color-secondary), #4f46e5);
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.jarvis {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border-bottom-left-radius: 2px;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Terminal Console System Logs */
+        .console-log {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: #38bdf8;
+            margin: 0;
+            padding: 4px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.02);
+        }
+
+        .console-log.sys { color: #94a3b8; }
+        .console-log.err { color: #f43f5e; }
+        .console-log.wake { color: #10b981; }
+
+        /* Bottom Command Input Bar */
+        .input-bar {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 12px;
+        }
+
+        .input-field {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 14px 20px;
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+        }
+
+        .send-btn {
+            background: var(--color-primary);
+            border: none;
+            color: #000;
+            font-weight: 600;
+            padding: 0 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+        }
+
+        .send-btn:hover {
+            box-shadow: 0 0 15px var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">JARVIS AI</div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            <span id="connection-status">ONLINE</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- HUD Control Side -->
+        <div class="glass-panel hud-side" id="hud-container">
+            <div class="core-container">
+                <div class="core-ring-outer"></div>
+                <div class="core-ring-inner"></div>
+                <div class="core-orb" id="voice-trigger" onclick="triggerVoiceActivation()"></div>
+            </div>
+
+            <div>
+                <div class="core-status-text" id="status-text">STANDBY</div>
+                
+                <!-- Sound visualizer bars -->
+                <div class="visualizer" id="visualizer">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <button class="btn btn-active" id="wake-toggle" onclick="toggleWakeWord()">
+                    WAKE WORD: ON
+                </button>
+                <button class="btn" onclick="clearHistory()">
+                    CLEAR LOGS
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Console Side -->
+        <div class="glass-panel right-side">
+            <div class="tabs-header">
+                <button class="tab-btn active" onclick="switchTab('chat')">AI ASSISTANT</button>
+                <button class="tab-btn" onclick="switchTab('logs')">SYSTEM CONSOLE</button>
+            </div>
+
+            <!-- Chat Pane -->
+            <div class="tab-pane active" id="chat-pane">
+                <div class="tab-content" id="chat-box">
+                    <div class="chat-bubble jarvis">Hello. I am JARVIS. How can I assist you today? Try clicking the central core or type a command below.</div>
+                </div>
+                
+                <div class="input-bar">
+                    <input type="text" class="input-field" id="text-input" placeholder="Type a command (e.g. open google, open youtube)..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendTextCommand()">SEND</button>
+                </div>
+            </div>
+
+            <!-- Console/Log Pane -->
+            <div class="tab-pane" id="logs-pane">
+                <div class="tab-content" id="log-box" style="font-family: 'Fira Code', monospace; background: rgba(0,0,0,0.15);">
+                    <div class="console-log sys">[SYS] Initializing core modules...</div>
+                    <div class="console-log sys">[SYS] Voice engine ready.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStatus = "Idle";
+        let historyIndex = 0;
+        let logsIndex = 0;
+
+        // Switch between chat and console log tabs
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+
+            if (tab === 'chat') {
+                document.querySelector('.tab-btn:nth-child(1)').classList.add('active');
+                document.getElementById('chat-pane').classList.add('active');
+            } else {
+                document.querySelector('.tab-btn:nth-child(2)').classList.add('active');
+                document.getElementById('logs-pane').classList.add('active');
+            }
+        }
+
+        // Send manual text command to backend
+        async function sendTextCommand() {
+            const input = document.getElementById('text-input');
+            const command = input.value.trim();
+            if (!command) return;
+
+            input.value = '';
+            
+            // Add user bubble immediately
+            appendChat('user', command);
+
+            try {
+                const response = await fetch('/api/command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: command })
+                });
+                const data = await response.json();
+                if (data.status !== 'success') {
+                    appendConsole('err', '[ERR] Failed to send command');
+                }
+            } catch (err) {
+                appendConsole('err', '[ERR] Connection error');
+            }
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendTextCommand();
+            }
+        }
+
+        // Trigger voice activation (Microphone listen)
+        async function triggerVoiceActivation() {
+            try {
+                appendConsole('sys', '[SYS] Activating microphone trigger...');
+                const response = await fetch('/api/trigger-listen', { method: 'POST' });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    appendConsole('sys', '[SYS] Mic activated. Listening...');
+                }
+            } catch (err) {
+                appendConsole('err', '[ERR] Connection error on mic trigger');
+            }
+        }
+
+        // Toggle Wake Word continuous loop
+        async function toggleWakeWord() {
+            try {
+                const response = await fetch('/api/toggle-wake', { method: 'POST' });
+                const data = await response.json();
+                const btn = document.getElementById('wake-toggle');
+                if (data.wake_word_enabled) {
+                    btn.classList.add('btn-active');
+                    btn.innerText = 'WAKE WORD: ON';
+                    appendConsole('sys', '[SYS] Wake word scanning enabled');
+                } else {
+                    btn.classList.remove('btn-active');
+                    btn.innerText = 'WAKE WORD: OFF';
+                    appendConsole('sys', '[SYS] Wake word scanning disabled');
+                }
+            } catch (err) {
+                appendConsole('err', '[ERR] Connection error on toggle wake');
+            }
+        }
+
+        // Clear history logs
+        async function clearHistory() {
+            try {
+                await fetch('/api/clear-history', { method: 'POST' });
+                document.getElementById('chat-box').innerHTML = '';
+                document.getElementById('log-box').innerHTML = '';
+                historyIndex = 0;
+                logsIndex = 0;
+                appendConsole('sys', '[SYS] Console logs cleared.');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function appendChat(sender, text) {
+            const box = document.getElementById('chat-box');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender}`;
+            bubble.innerText = text;
+            box.appendChild(bubble);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function appendConsole(type, text) {
+            const box = document.getElementById('log-box');
+            const log = document.createElement('div');
+            log.className = `console-log ${type}`;
+            log.innerText = text;
+            box.appendChild(log);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        // Polling loop to get state updates
+        async function pollState() {
+            try {
+                const response = await fetch('/api/state');
+                const data = await response.json();
+
+                // Update HUD visual class based on state
+                const hud = document.getElementById('hud-container');
+                const statusText = document.getElementById('status-text');
+                
+                hud.className = 'glass-panel hud-side'; // reset
+                
+                let stateClass = data.status.toLowerCase();
+                if (stateClass.includes('listening')) {
+                    hud.classList.add('listening');
+                    statusText.innerText = 'LISTENING';
+                } else if (stateClass.includes('speaking')) {
+                    hud.classList.add('speaking');
+                    statusText.innerText = 'RESPONDING';
+                } else if (stateClass.includes('processing')) {
+                    hud.classList.add('processing');
+                    statusText.innerText = 'PROCESSING';
+                } else {
+                    statusText.innerText = data.status;
+                }
+
+                // Update Chat and System log history diffs
+                if (data.history.length > historyIndex) {
+                    for (let i = historyIndex; i < data.history.length; i++) {
+                        const item = data.history[i];
+                        appendChat(item.sender, item.text);
+                    }
+                    historyIndex = data.history.length;
+                }
+
+                if (data.logs.length > logsIndex) {
+                    for (let i = logsIndex; i < data.logs.length; i++) {
+                        const item = data.logs[i];
+                        appendConsole(item.type, item.text);
+                    }
+                    logsIndex = data.logs.length;
+                }
+
+            } catch (err) {
+                console.error('Polling error:', err);
+                document.getElementById('connection-status').innerText = 'OFFLINE';
+                document.getElementById('connection-status').style.color = '#ef4444';
+            }
+        }
+
+        // Poll every 300ms
+        setInterval(pollState, 300);
+    </script>
+</body>
+</html>

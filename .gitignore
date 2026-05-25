@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp/
+.pnp.js
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/.vercel/
+frontend/next-env.d.ts
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+backend/.venv/
+backend/logs/
+backend/uploads/
+
+# Environment
+.env
+.env.*
+!.env.example
+!frontend/.env.local.example
+!backend/.env.example
+
+# Build and OS noise
+dist/
+build/
+coverage/
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE
+.idea/
+.vscode/
