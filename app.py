@@ -5,10 +5,8 @@ import webbrowser
 import os
 from flask import Flask, render_template, jsonify, request
 
-# Detect cloud hosting or non-Windows environment to bypass hardware hangs
 IS_CLOUD = os.environ.get("RENDER") is not None or os.name != "nt"
 
-# Try to import SpeechRecognition
 try:
     if IS_CLOUD:
         sr = None
@@ -20,7 +18,6 @@ except ImportError:
     sr = None
     HAS_SPEECH_REC = False
 
-# Try to import pyttsx3
 try:
     if IS_CLOUD:
         pyttsx3 = None
@@ -32,25 +29,20 @@ except ImportError:
     pyttsx3 = None
     HAS_TTS = False
 
-# Initialize Flask
 app = Flask(__name__, template_folder='templates')
 
-# Shared State
 state = {
-    "status": "Idle",  # Idle, Listening, Processing, Speaking
-    "history": [],     # List of {"sender": "user"|"jarvis", "text": "..."}
-    "logs": []         # List of {"type": "sys"|"err"|"wake", "text": "..."}
+    "status": "Idle",
+    "history": [],
+    "logs": []
 }
 state_lock = threading.Lock()
 
-# Control flags
 wake_word_enabled = True
 force_listen_flag = False
 
-# Queue for typed/incoming commands
 command_queue = queue.Queue()
 
-# Wake words list
 WAKE_WORDS = ["hey jarvis", "jarvis", "ok jarvis"]
 
 def add_history(sender, text):
@@ -66,11 +58,10 @@ def update_status(status_text):
     with state_lock:
         state["status"] = status_text
 
-# Background Assistant Loop
+# voice assistant background loop
 def voice_assistant_worker():
     global force_listen_flag, wake_word_enabled
     
-    # Initialize COM on Windows for this thread
     try:
         import pythoncom
         pythoncom.CoInitialize()
@@ -78,7 +69,6 @@ def voice_assistant_worker():
     except Exception as e:
         add_system_log(f"COM initialization skipped/failed: {str(e)}", "sys")
 
-    # Initialize Voice Engine
     engine = None
     if HAS_TTS and pyttsx3:
         try:
@@ -104,10 +94,9 @@ def voice_assistant_worker():
             add_system_log("(TTS synthesis skipped: No voice engine available)", "sys")
         update_status("Idle")
 
-    # Welcome message
     speak("Jarvis System online and connected to Web UI.")
 
-    # Initialize Speech Recognizer and test microphone access
+    # speech recognizer aur mic test kiye
     r = None
     mic_available = False
     if HAS_SPEECH_REC and sr:
@@ -128,14 +117,12 @@ def voice_assistant_worker():
         add_system_log("Speech Recognizer not available. Running in Web/Text-only mode.", "sys")
 
     while True:
-        # 1. Process typed command queue first
         if not command_queue.empty():
             cmd = command_queue.get()
             update_status("Processing")
             process_command_logic(cmd, speak)
             continue
 
-        # 2. Check if user clicked mic button
         should_force_listen = False
         with state_lock:
             if force_listen_flag:
@@ -172,7 +159,6 @@ def voice_assistant_worker():
                 update_status("Idle")
             continue
 
-        # 3. Continuous wake word scanner (if enabled)
         if wake_word_enabled:
             if not r or not mic_available:
                 update_status("Idle (Web/Text Mode)")
@@ -182,7 +168,6 @@ def voice_assistant_worker():
             update_status("Idle (Wake Word Active)")
             try:
                 with sr.Microphone() as source:
-                    # Quick calibration on first run, then fast listening
                     r.adjust_for_ambient_noise(source, duration=0.5)
                     audio = r.listen(source, timeout=1.5, phrase_time_limit=2.5)
                 
@@ -199,10 +184,8 @@ def voice_assistant_worker():
                     add_history("user", command)
                     process_command_logic(command, speak)
             except (sr.WaitTimeoutError, sr.UnknownValueError):
-                # Expected during normal background scanning
                 pass
             except Exception as e:
-                # Catch any unexpected mic issues without crashing loop
                 time.sleep(1)
         else:
             if not r or not mic_available:
@@ -233,7 +216,7 @@ def process_command_logic(c, speak_func):
         webbrowser.open("https://gemini.google.com/app")
         speak_func("Gemini is open now")
     elif "open github" in c:
-        webbrowser.open("http://www.github.com")
+        webbrowser.open("https://github.com/dwivediadarsh496-commits/JARVIS-AI")
         speak_func("Github is open now")
     elif "time" in c:
         from datetime import datetime
@@ -247,7 +230,6 @@ def process_command_logic(c, speak_func):
         speak_func(f"I heard you say: {c}. I can help you open Google, YouTube, GitHub, Gemini, or LinkedIn.")
 
 
-# Flask Routes
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -295,7 +277,6 @@ def clear_history():
         state["logs"] = []
     return jsonify({"status": "success"})
 
-# Start voice assistant thread safely on the first request (critical for Gunicorn fork model)
 thread_started = False
 thread_lock = threading.Lock()
 
@@ -309,9 +290,7 @@ def start_assistant_thread():
                 assistant_thread.start()
                 thread_started = True
 
-# Start Flask app
 if __name__ == "__main__":
-    # Start Flask server using environment PORT for deployment readiness
     port = int(os.environ.get("PORT", 5000))
     print(f"Starting Flask Web UI server on http://0.0.0.0:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)

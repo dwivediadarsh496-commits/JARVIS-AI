@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS AI - Dashboard</title>
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Orbitron:wght@500;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -19,7 +18,6 @@
             --core-glow: rgba(0, 242, 254, 0.6);
         }
 
-        /* Ambient Background */
         body {
             margin: 0;
             padding: 0;
@@ -32,7 +30,6 @@
             overflow-x: hidden;
         }
 
-        /* Glassmorphism Panel */
         .glass-panel {
             background: var(--bg-panel);
             backdrop-filter: blur(20px);
@@ -42,7 +39,6 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* Header styling */
         header {
             display: flex;
             justify-content: space-between;
@@ -98,7 +94,6 @@
             100% { transform: scale(0.9); opacity: 0.6; }
         }
 
-        /* Layout Grid */
         .container {
             flex: 1;
             display: grid;
@@ -117,7 +112,6 @@
             }
         }
 
-        /* Left Side: Jarvis Core HUD */
         .hud-side {
             display: flex;
             flex-direction: column;
@@ -128,7 +122,6 @@
             min-height: 500px;
         }
 
-        /* Jarvis Core Arc Reactor */
         .core-container {
             position: relative;
             width: 300px;
@@ -188,7 +181,6 @@
             text-align: center;
         }
 
-        /* Sound Waves Visualizer */
         .visualizer {
             display: flex;
             align-items: center;
@@ -206,7 +198,6 @@
             transition: height 0.1s ease, background-color 0.3s ease;
         }
 
-        /* Animation States */
         @keyframes rotate-clockwise {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -217,7 +208,6 @@
             to { transform: rotate(0deg); }
         }
 
-        /* Listening State */
         .listening .core-orb {
             background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, var(--color-accent) 50%, var(--color-secondary) 100%);
             box-shadow: 0 0 60px var(--color-accent);
@@ -232,7 +222,6 @@
             animation: soundwave 1.2s ease-in-out infinite alternate;
         }
 
-        /* Speaking State */
         .speaking .core-orb {
             background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, #a855f7 50%, var(--color-primary) 100%);
             box-shadow: 0 0 60px #a855f7;
@@ -243,7 +232,6 @@
             animation: soundwave 0.8s ease-in-out infinite alternate;
         }
 
-        /* Processing State */
         .processing .core-orb {
             animation: core-spin 2s linear infinite;
         }
@@ -261,7 +249,6 @@
             100% { height: 50px; }
         }
 
-        /* Visualizer delay generation */
         .bar:nth-child(1) { animation-delay: 0.1s; }
         .bar:nth-child(2) { animation-delay: 0.4s; }
         .bar:nth-child(3) { animation-delay: 0.2s; }
@@ -271,7 +258,6 @@
         .bar:nth-child(7) { animation-delay: 0.2s; }
         .bar:nth-child(8) { animation-delay: 0.4s; }
 
-        /* Left side control switches */
         .control-panel {
             width: 100%;
             display: flex;
@@ -308,7 +294,6 @@
             color: var(--color-primary);
         }
 
-        /* Right Side: Chat & Terminal Console */
         .right-side {
             display: flex;
             flex-direction: column;
@@ -348,7 +333,6 @@
             gap: 15px;
         }
 
-        /* Hide tabs by default */
         .tab-pane {
             display: none;
             flex-direction: column;
@@ -359,7 +343,6 @@
             display: flex;
         }
 
-        /* Chat bubbles */
         .chat-bubble {
             max-width: 80%;
             padding: 14px 18px;
@@ -389,7 +372,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Terminal Console System Logs */
         .console-log {
             font-family: 'Fira Code', monospace;
             font-size: 13px;
@@ -403,7 +385,6 @@
         .console-log.err { color: #f43f5e; }
         .console-log.wake { color: #10b981; }
 
-        /* Bottom Command Input Bar */
         .input-bar {
             padding: 20px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -447,7 +428,6 @@
             transform: translateY(-1px);
         }
 
-        /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -473,7 +453,6 @@
     </header>
 
     <div class="container">
-        <!-- HUD Control Side -->
         <div class="glass-panel hud-side" id="hud-container">
             <div class="core-container">
                 <div class="core-ring-outer"></div>
@@ -484,7 +463,6 @@
             <div>
                 <div class="core-status-text" id="status-text">STANDBY</div>
                 
-                <!-- Sound visualizer bars -->
                 <div class="visualizer" id="visualizer">
                     <div class="bar"></div>
                     <div class="bar"></div>
@@ -507,14 +485,12 @@
             </div>
         </div>
 
-        <!-- Chat Console Side -->
         <div class="glass-panel right-side">
             <div class="tabs-header">
                 <button class="tab-btn active" onclick="switchTab('chat')">AI ASSISTANT</button>
                 <button class="tab-btn" onclick="switchTab('logs')">SYSTEM CONSOLE</button>
             </div>
 
-            <!-- Chat Pane -->
             <div class="tab-pane active" id="chat-pane">
                 <div class="tab-content" id="chat-box">
                     <div class="chat-bubble jarvis">Hello. I am JARVIS. How can I assist you today? Try clicking the central core or type a command below.</div>
@@ -526,7 +502,6 @@
                 </div>
             </div>
 
-            <!-- Console/Log Pane -->
             <div class="tab-pane" id="logs-pane">
                 <div class="tab-content" id="log-box" style="font-family: 'Fira Code', monospace; background: rgba(0,0,0,0.15);">
                     <div class="console-log sys">[SYS] Initializing core modules...</div>
@@ -541,7 +516,6 @@
         let historyIndex = 0;
         let logsIndex = 0;
 
-        // Switch between chat and console log tabs
         function switchTab(tab) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
@@ -555,7 +529,6 @@
             }
         }
 
-        // Send manual text command to backend
         async function sendTextCommand() {
             const input = document.getElementById('text-input');
             const command = input.value.trim();
@@ -563,7 +536,6 @@
 
             input.value = '';
             
-            // Add user bubble immediately
             appendChat('user', command);
 
             try {
@@ -587,7 +559,6 @@
             }
         }
 
-        // Trigger voice activation (Microphone listen)
         async function triggerVoiceActivation() {
             try {
                 appendConsole('sys', '[SYS] Activating microphone trigger...');
@@ -601,7 +572,6 @@
             }
         }
 
-        // Toggle Wake Word continuous loop
         async function toggleWakeWord() {
             try {
                 const response = await fetch('/api/toggle-wake', { method: 'POST' });
@@ -621,7 +591,6 @@
             }
         }
 
-        // Clear history logs
         async function clearHistory() {
             try {
                 await fetch('/api/clear-history', { method: 'POST' });
@@ -653,13 +622,11 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        // Polling loop to get state updates
         async function pollState() {
             try {
                 const response = await fetch('/api/state');
                 const data = await response.json();
 
-                // Update HUD visual class based on state
                 const hud = document.getElementById('hud-container');
                 const statusText = document.getElementById('status-text');
                 
@@ -679,7 +646,6 @@
                     statusText.innerText = data.status;
                 }
 
-                // Update Chat and System log history diffs
                 if (data.history.length > historyIndex) {
                     for (let i = historyIndex; i < data.history.length; i++) {
                         const item = data.history[i];
@@ -703,7 +669,6 @@
             }
         }
 
-        // Poll every 300ms
         setInterval(pollState, 300);
     </script>
 </body>
